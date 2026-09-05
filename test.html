@@ -4,52 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة الاشتراكات - FTTH</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS (XLSX) library -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- Google Fonts (Cairo) -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Cairo','sans-serif']},colors:{brand:{50:'#f0f7ff',100:'#e0effe',500:'#0284c7',600:'#0369a1',700:'#075985',800:'#0c4a6e'}}}}}</script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
     <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <div class="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center text-white font-bold text-xl shadow-lg"><i class="fa-solid font-bold fa-wifi"></i></div>
-                <div><h1 class="font-bold text-lg leading-tight">إدارة اشتراكات FTTH</h1><p class="text-xs text-slate-400">متابعة الاشتراكات المنتهية والقريبة من الانتهاء واستخراج التقارير</p></div>
+                <div class="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    <i class="fa-solid font-bold fa-wifi"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">إدارة اشتراكات FTTH</h1>
+                    <p class="text-xs text-slate-400">متابعة الاشتراكات المنتهية والقريبة من الانتهاء واستخراج التقارير</p>
+                </div>
             </div>
             <div id="userInfoSection" class="hidden flex items-center gap-4">
-                <span class="text-xs bg-slate-800 text-brand-500 px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span id="loggedInUsername" class="font-semibold text-slate-200"></span></span>
-                <button id="btnLogout" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 px-3 py-1.5 rounded-lg border border-rose-900/50 transition"><i class="fa-solid fa-right-from-bracket ml-1"></i> خروج</button>
+                <span class="text-xs bg-slate-800 text-brand-500 px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="loggedInUsername" class="font-semibold text-slate-200"></span>
+                </span>
+                <button onclick="logout()" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 px-3 py-1.5 rounded-lg border border-rose-900/50 transition">
+                    <i class="fa-solid fa-right-from-bracket ml-1"></i> خروج
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Main Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div id="toast" class="hidden fixed bottom-5 left-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3 transition-all duration-300 transform translate-y-2"><i id="toastIcon" class="fa-solid fa-circle-info text-brand-500 text-lg"></i><span id="toastMessage" class="text-sm font-medium"></span></div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="hidden fixed bottom-5 left-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3 transition-all duration-300 transform translate-y-2">
+            <i id="toastIcon" class="fa-solid fa-circle-info text-brand-500 text-lg"></i>
+            <span id="toastMessage" class="text-sm font-medium"></span>
+        </div>
+
+        <!-- Section 1: LOGIN FORM -->
         <section id="loginSection" class="max-w-md mx-auto my-12">
             <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-slate-900 to-slate-800 p-6 text-center text-white">
-                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm"><i class="fa-solid fa-user-lock text-2xl text-brand-500"></i></div>
+                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
+                        <i class="fa-solid fa-user-lock text-2xl text-brand-500"></i>
+                    </div>
                     <h2 class="text-xl font-bold">تسجيل الدخول للمقاولين</h2>
                     <p class="text-xs text-slate-400 mt-1">قم بإدخال بيانات حسابك للوصول للنظام</p>
                 </div>
-                <form id="loginForm" class="p-6 space-y-5">
+                
+                <form id="loginForm" onsubmit="handleLogin(event)" class="p-6 space-y-5">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">اسم المستخدم</label>
-                        <div class="relative"><span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400"><i class="fa-solid fa-user"></i></span><input type="text" id="loginUsername" required class="w-full pr-10 pl-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Username"></div>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                            <input type="text" id="loginUsername" required class="w-full pr-10 pl-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="Username">
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">كلمة المرور</label>
-                        <div class="relative"><span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400"><i class="fa-solid fa-lock"></i></span><input type="password" id="loginPassword" required class="w-full pr-10 pl-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="••••••••"></div>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input type="password" id="loginPassword" required class="w-full pr-10 pl-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition" placeholder="••••••••">
+                        </div>
                     </div>
-                    <div id="loginError" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs flex items-center gap-2"><i class="fa-solid fa-circle-exclamation text-rose-500 text-sm"></i><span id="loginErrorText">فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.</span></div>
-                    <button type="submit" id="btnLogin" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-brand-500/30 transition flex items-center justify-center gap-2"><span>تسجيل الدخول</span><i class="fa-solid fa-arrow-left"></i></button>
+
+                    <div id="loginError" class="hidden bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-rose-500 text-sm"></i>
+                        <span id="loginErrorText">فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.</span>
+                    </div>
+
+                    <button type="submit" id="btnLogin" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-brand-500/30 transition flex items-center justify-center gap-2">
+                        <span>تسجيل الدخول</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
                 </form>
             </div>
         </section>
+
+
+        <!-- Section 2: DASHBOARD & DATA FETCHING -->
         <section id="dashboardSection" class="hidden space-y-6">
+            
+            <!-- Controls Card -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
                 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    
                     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
+                        <!-- Select Subscription Status -->
                         <div class="sm:w-56">
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">حالة الاشتراك</label>
                             <select id="subscriptionStatus" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold text-slate-700">
@@ -57,44 +131,88 @@
                                 <option value="Active">سوف ينتهون قريباً</option>
                             </select>
                         </div>
+
+                        <!-- Date Picker -->
                         <div class="sm:w-56">
                             <label class="block text-xs font-bold text-slate-700 mb-1.5">تاريخ الانتهاء</label>
                             <input type="date" id="selectedDate" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
+
                         <div class="flex items-end gap-2">
-                            <button id="btnFetch" class="mt-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl transition shadow flex items-center justify-center gap-2 text-sm"><i class="fa-solid fa-magnifying-glass"></i><span>جلب البيانات</span></button>
+                            <button onclick="fetchSubscriptions()" id="btnFetch" class="mt-auto bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-6 rounded-xl transition shadow flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span>جلب البيانات</span>
+                            </button>
                         </div>
                     </div>
+
                     <div class="flex items-center gap-3">
-                        <button id="btnExport" disabled class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-5 rounded-xl transition shadow flex items-center justify-center gap-2 text-sm"><i class="fa-solid fa-file-excel text-base"></i><span>تصدير إلى Excel (.xlsx)</span></button>
+                        <button onclick="exportToExcel()" id="btnExport" disabled class="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 px-5 rounded-xl transition shadow flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-file-excel text-base"></i>
+                            <span>تصدير إلى Excel (.xlsx)</span>
+                        </button>
                     </div>
                 </div>
+
+                <!-- Fetch Progress Bar -->
                 <div id="progressContainer" class="hidden mt-6 pt-4 border-t border-slate-100">
-                    <div class="flex justify-between items-center text-xs text-slate-600 font-semibold mb-2"><span id="progressStatus">جاري جلب قائمة الاشتراكات...</span><span id="progressCount">0 / 0</span></div>
-                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div id="progressBar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-300" style="width:0%"></div></div>
+                    <div class="flex justify-between items-center text-xs text-slate-600 font-semibold mb-2">
+                        <span id="progressStatus">جاري جلب قائمة الاشتراكات...</span>
+                        <span id="progressCount">0 / 0</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div id="progressBar" class="bg-brand-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Stats & Quick Summary -->
             <div id="statsContainer" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div><p id="statLabelTotal" class="text-xs text-slate-500 font-semibold mb-1">إجمالي الاشتراكات</p><h3 id="statTotal" class="text-2xl font-bold text-slate-800">0</h3></div>
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <p id="statLabelTotal" class="text-xs text-slate-500 font-semibold mb-1">إجمالي الاشتراكات</p>
+                        <h3 id="statTotal" class="text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
                 </div>
+
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div><p class="text-xs text-slate-500 font-semibold mb-1">أرقام الهواتف التي تم جلبها</p><h3 id="statMobiles" class="text-2xl font-bold text-emerald-600">0</h3></div>
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl"><i class="fa-solid fa-phone"></i></div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold mb-1">أرقام الهواتف التي تم جلبها</p>
+                        <h3 id="statMobiles" class="text-2xl font-bold text-emerald-600">0</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
                 </div>
+
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div><p class="text-xs text-slate-500 font-semibold mb-1">التاريخ المحدد</p><h3 id="statDate" class="text-lg font-bold text-brand-600 font-mono">-</h3></div>
-                    <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-day"></i></div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold mb-1">التاريخ المحدد</p>
+                        <h3 id="statDate" class="text-lg font-bold text-brand-600 font-mono">-</h3>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
                 </div>
             </div>
+
+            <!-- Search and Filter Bar -->
             <div id="tableControls" class="hidden bg-white p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <div class="relative w-full sm:w-80">
-                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400"><i class="fa-solid fa-search"></i></span>
-                    <input type="text" id="searchInput" placeholder="بحث باسم المشترك، الايدي، المنطقه، رقم الهاتف..." class="w-full pr-10 pl-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="searchInput" oninput="filterTable()" placeholder="بحث باسم المشترك، الايدي، المنطقه، رقم الهاتف..." class="w-full pr-10 pl-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
-                <div class="text-xs text-slate-500 font-semibold">عرض <span id="filteredCount">0</span> من أصل <span id="totalResultsCount">0</span> سجل</div>
+                <div class="text-xs text-slate-500 font-semibold">
+                    عرض <span id="filteredCount">0</span> من أصل <span id="totalResultsCount">0</span> سجل
+                </div>
             </div>
+
+            <!-- Data Table -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto min-h-[300px]">
                     <table class="w-full text-right border-collapse">
@@ -102,154 +220,686 @@
                             <tr class="bg-slate-900 text-white text-xs uppercase font-bold tracking-wider">
                                 <th class="p-4 border-b border-slate-800">#</th>
                                 <th class="p-4 border-b border-slate-800">اسم المشترك</th>
-                                <th class="p-4 border-b border-slate-800">الأيدي (Customer ID)</th>
                                 <th class="p-4 border-b border-slate-800">اسم المستخدم (Username)</th>
                                 <th class="p-4 border-b border-slate-800">المنطقة (Zone ID)</th>
                                 <th class="p-4 border-b border-slate-800">رقم الهاتف</th>
                                 <th class="p-4 border-b border-slate-800">تاريخ الاشتراك</th>
                                 <th class="p-4 border-b border-slate-800">تاريخ الانتهاء</th>
                                 <th class="p-4 border-b border-slate-800">مدة الالتزام</th>
+                                <th class="p-4 border-b border-slate-800">قوة الإشارة</th>
+                                <th class="p-4 border-b border-slate-800">حالة الإشارة</th>
+                                <th class="p-4 border-b border-slate-800">الوصف</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-slate-100 text-xs">
-                            <tr id="emptyRow"><td colspan="9" class="p-12 text-center text-slate-400"><div class="flex flex-col items-center gap-3"><i class="fa-solid fa-inbox text-4xl text-slate-300"></i><p class="font-medium text-sm">لا توجد بيانات معروضة. قم باختيار الحالة والتاريخ وضغط زر الجلب.</p></div></td></tr>
+                            <!-- Empty State -->
+                            <tr id="emptyRow">
+                                <td colspan="11" class="p-12 text-center text-slate-400">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <i class="fa-solid fa-inbox text-4xl text-slate-300"></i>
+                                        <p class="font-medium text-sm">لا توجد بيانات معروضة. قم باختيار الحالة والتاريخ وضغط زر الجلب.</p>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
         </section>
+
     </main>
+
+    <!-- Footer -->
     <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-4 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs flex flex-col sm:flex-row items-center justify-center gap-2">
             <span>تمت برمجة هذه الأداة عن طريق WApi</span>
             <span class="hidden sm:inline text-slate-600">•</span>
-            <a href="https://t.me/apiwapi" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 font-semibold dir-ltr transition"><i class="fa-brands fa-telegram text-sm text-sky-400"></i></a>
+            <a href="https://t.me/apiwapi" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-brand-400 hover:text-brand-300 font-semibold dir-ltr transition">
+                <i class="fa-brands fa-telegram text-sm text-sky-400"></i>
+            </a>
         </div>
     </footer>
+
+    <!-- Application Logic -->
     <script>
-        let token=null,subscriptionsData=[],filteredSubscriptionsData=[];
-        const API_BASE="https://ftth.wathiq-iq.deno.net/api",getEl=i=>document.getElementById(i);
-        document.addEventListener('DOMContentLoaded',()=>{
-            getEl('selectedDate').value=new Date().toISOString().split('T')[0];
-            getEl('loginForm').addEventListener('submit',handleLogin);
-            getEl('btnLogout').addEventListener('click',logout);
-            getEl('btnFetch').addEventListener('click',fetchSubscriptions);
-            getEl('btnExport').addEventListener('click',exportToExcel);
-            getEl('searchInput').addEventListener('input',filterTable);
-            const t=sessionStorage.getItem('ftth_token'),u=sessionStorage.getItem('ftth_username');
-            if(t&&u){token=t;showDashboard(u)}
+        // Global Application State
+        let token = null;
+        let subscriptionsData = [];
+        let filteredSubscriptionsData = [];
+
+        // Base API Configuration
+        const API_BASE = "https://ftth.wathiq-iq.deno.net/api";
+
+        // Initialize App on DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default date picker value to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('selectedDate').value = today;
+
+            // Check if saved token exists in session
+            const savedToken = sessionStorage.getItem('ftth_token');
+            const savedUser = sessionStorage.getItem('ftth_username');
+            if (savedToken && savedUser) {
+                token = savedToken;
+                showDashboard(savedUser);
+            }
         });
-        async function handleLogin(e){
+
+        // -------------------------------------------------------------
+        // 1. Authentication Handlers
+        // -------------------------------------------------------------
+        async function handleLogin(e) {
             e.preventDefault();
-            const u=getEl('loginUsername').value.trim(),p=getEl('loginPassword').value.trim(),b=getEl('btnLogin'),err=getEl('loginError');
-            err.classList.add('hidden');b.disabled=true;b.innerHTML=`<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري تسجيل الدخول...</span>`;
-            try{
-                const body=new URLSearchParams({grant_type:'password',scope:'openid profile',client_id:'',username:u,password:p});
-                const res=await fetch(`${API_BASE}/auth/Contractor/token`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','x-client-app':'53d57a7f-3f89-4e9d-873b-3d071bc6dd9f','x-user-role':'0'},body});
-                if(!res.ok){
-                    let m="فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.";
-                    try{const d=await res.json();m=d.error_description||d.message||(d.error?`خطأ في الاعتماد (${d.error})`:m)}catch{if(res.status===401)m="اسم المستخدم أو كلمة المرور غير صحيحة (401 Unauthorized)."}
-                    throw new Error(m)
-                }
-                const data=await res.json();token=data.access_token||data.token;
-                if(!token)throw new Error("لم يتم استلام رمز التوثيق من السيرفر");
-                sessionStorage.setItem('ftth_token',token);sessionStorage.setItem('ftth_username',u);
-                showToast('تم تسجيل الدخول بنجاح','success');showDashboard(u)
-            }catch(e){getEl('loginErrorText').innerText=e.message||'حدث خطأ أثناء الاتصال بالسيرفر.';err.classList.remove('hidden')}
-            finally{b.disabled=false;b.innerHTML=`<span>تسجيل الدخول</span> <i class="fa-solid fa-arrow-left"></i>`}
-        }
-        function showDashboard(u){getEl('loggedInUsername').innerText=u;getEl('userInfoSection').classList.remove('hidden');getEl('loginSection').classList.add('hidden');getEl('dashboardSection').classList.remove('hidden')}
-        function logout(){sessionStorage.removeItem('ftth_token');sessionStorage.removeItem('ftth_username');token=null;subscriptionsData=[];getEl('userInfoSection').classList.add('hidden');getEl('dashboardSection').classList.add('hidden');getEl('loginSection').classList.remove('hidden');showToast('تم تسجيل الخروج','info')}
-        async function fetchSubscriptions(){
-            if(!token){showToast('الرجاء تسجيل الدخول أولاً','error');return}
-            const dVal=getEl('selectedDate').value,sVal=getEl('subscriptionStatus').value;
-            if(!dVal){showToast('يرجى تحديد تاريخ الانتهاء','error');return}
-            const b=getEl('btnFetch'),pBox=getEl('progressContainer'),pBar=getEl('progressBar'),pCount=getEl('progressCount'),pStat=getEl('progressStatus');
-            b.disabled=true;b.innerHTML=`<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري الجلب...</span>`;
-            const prevD=new Date(dVal);prevD.setDate(prevD.getDate()-1);
-            const fDate=`${prevD.toISOString().split('T')[0]}T21:00:00.000Z`,tDate=`${dVal}T20:59:59.999Z`;
-            let items=[],page=1,pSize=100,total=0;
-            pBox.classList.remove('hidden');pBar.style.width='0%';
-            try{
-                do{
-                    pStat.innerText=`جاري جلب قائمة الاشتراكات (الصفحة ${page})...`;
-                    const q=new URLSearchParams({pageSize:pSize.toString(),pageNumber:page.toString(),'sortCriteria.property':'expires','sortCriteria.direction':'desc',status:sVal,fromExpirationDate:fDate,toExpirationDate:tDate,hierarchyLevel:'0'});
-                    const res=await fetch(`${API_BASE}/subscriptions?${q}`,{headers:{'Authorization':`Bearer ${token}`,'Accept':'application/json','x-client-app':'53d57a7f-3f89-4e9d-873b-3d071bc6dd9f','x-user-role':'0'}});
-                    if(!res.ok){if(res.status===401){logout();throw new Error('انتهت جلسة الدخول.')}throw new Error(`فشل الجلب: ${res.status}`)}
-                    const resData=await res.json(),pItems=resData.items||resData.data||(Array.isArray(resData)?resData:[]);
-                    if(page===1)total=resData.totalCount??resData.count??pItems.length;
-                    if(Array.isArray(pItems)&&pItems.length)items=items.concat(pItems);else break;
-                    page++
-                }while(items.length<total&&(page-1)*pSize<total);
-                if(!items.length){subscriptionsData=[];renderTable([]);showToast(`لا توجد اشتراكات في هذا التاريخ`,'info');return}
-                showToast(`تم استلام ${items.length} اشتراك. جاري جلب التفاصيل...`,'info');
-                pStat.innerText='جاري جلب أرقام الهواتف...';pCount.innerText=`0 / ${items.length}`;
-                subscriptionsData=[];
-                for(let i=0;i<items.length;i++){
-                    const it=items[i],cId=it.customer?it.customer.id:null,cName=it.customer?it.customer.displayValue:'غير معروف',uName=it.username||'N/A',zId=(it.zone&&it.zone.id)?it.zone.id:(it.zoneId||'N/A');
-                    let mob='N/A';
-                    if(cId){
-                        try{
-                            const cRes=await fetch(`${API_BASE}/customers/${cId}`,{headers:{'Authorization':`Bearer ${token}`,'Accept':'application/json','x-client-app':'53d57a7f-3f89-4e9d-873b-3d071bc6dd9f','x-user-role':'0'}});
-                            if(cRes.ok){const cD=await cRes.json();mob=cD.model?.primaryContact?.mobile||cD.primaryContact?.mobile||'N/A'}
-                        }catch(e){}
+            const usernameInput = document.getElementById('loginUsername').value.trim();
+            const passwordInput = document.getElementById('loginPassword').value.trim();
+            const btnLogin = document.getElementById('btnLogin');
+            const loginError = document.getElementById('loginError');
+
+            loginError.classList.add('hidden');
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري تسجيل الدخول...</span>`;
+
+            try {
+                // Form Data Request Body
+                const formData = new URLSearchParams();
+                formData.append('grant_type', 'password');
+                formData.append('scope', 'openid profile');
+                formData.append('client_id', '');
+                formData.append('username', usernameInput);
+                formData.append('password', passwordInput);
+
+                const response = await fetch(`${API_BASE}/auth/Contractor/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'x-client-app': '53d57a7f-3f89-4e9d-873b-3d071bc6dd9f',
+                        'x-user-role': '0'
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    let errorMsg = "فشل تسجيل الدخول. تحقق من اسم المستخدم وكلمة المرور.";
+                    try {
+                        const errData = await response.json();
+                        if (errData.error_description) {
+                            errorMsg = errData.error_description;
+                        } else if (errData.message) {
+                            errorMsg = errData.message;
+                        } else if (errData.error) {
+                            errorMsg = `خطأ في الاعتماد (${errData.error}): اسم المستخدم أو كلمة المرور غير صحيحة.`;
+                        }
+                    } catch (err) {
+                        if (response.status === 401) {
+                            errorMsg = "اسم المستخدم أو كلمة المرور غير صحيحة (401 Unauthorized).";
+                        } else {
+                            errorMsg = `خطأ في الاتصال بالسيرفر: ${response.status}`;
+                        }
                     }
-                    subscriptionsData.push({customerName:cName,customerId:cId||'N/A',username:uName,zoneId:zId,mobile:mob,startedAt:fmtDate(it.startedAt),expires:fmtDate(it.expires),commitmentPeriod:calcCommit(it.startedAt,it.expires),status:sVal});
-                    pBar.style.width=`${Math.round(((i+1)/items.length)*100)}%`;pCount.innerText=`${i+1} / ${items.length}`
+                    throw new Error(errorMsg);
                 }
-                showToast(`تم جلب جميع الحسابات بنجاح (${subscriptionsData.length})`,'success');
-                getEl('statLabelTotal').innerText=sVal==='Expired'?'إجمالي الاشتراكات المنتهية':'إجمالي الاشتراكات التي ستنتهي قريباً';
-                getEl('statTotal').innerText=subscriptionsData.length;
-                getEl('statMobiles').innerText=subscriptionsData.filter(d=>d.mobile!=='N/A').length;
-                getEl('statDate').innerText=dVal;
-                getEl('statsContainer').classList.remove('hidden');getEl('tableControls').classList.remove('hidden');
-                filterTable()
-            }catch(e){showToast(e.message,'error')}
-            finally{b.disabled=false;b.innerHTML=`<i class="fa-solid fa-magnifying-glass"></i> <span>جلب البيانات</span>`;setTimeout(()=>pBox.classList.add('hidden'),2000)}
+
+                const data = await response.json();
+                
+                // Token response
+                token = data.access_token || data.token;
+                
+                if (!token) {
+                    throw new Error("لم يتم استلام رمز التوثيق (Token) من السيرفر");
+                }
+
+                // Save Session
+                sessionStorage.setItem('ftth_token', token);
+                sessionStorage.setItem('ftth_username', usernameInput);
+
+                showToast('تم تسجيل الدخول بنجاح', 'success');
+                showDashboard(usernameInput);
+
+            } catch (error) {
+                console.error("Login Error:", error);
+                document.getElementById('loginErrorText').innerText = error.message || 'حدث خطأ أثناء الاتصال بالسيرفر. يرجى التأكد من البيانات أو إعدادات CORS.';
+                loginError.classList.remove('hidden');
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = `<span>تسجيل الدخول</span> <i class="fa-solid fa-arrow-left"></i>`;
+            }
         }
-        function calcCommit(s,e){
-            if(!s||!e)return'غير محدد';
-            const d1=new Date(s),d2=new Date(e);
-            if(isNaN(d1)||isNaN(d2))return'غير محدد';
-            const m=Math.round(Math.abs(d2-d1)/(1000*60*60*24*30));
-            return m<=1?'شهر واحد':m===2?'شهرين (2)':m===3?'3 أشهر':m>3?`${m} أشهر أو أكثر`:'غير محدد'
+
+        function showDashboard(username) {
+            document.getElementById('loggedInUsername').innerText = username;
+            document.getElementById('userInfoSection').classList.remove('hidden');
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
         }
-        function fmtDate(s){if(!s)return'N/A';const d=new Date(s);return isNaN(d)?s:d.toLocaleDateString('en-US',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:true})}
-        function filterTable(){
-            const q=getEl('searchInput').value.toLowerCase().trim();
-            filteredSubscriptionsData=!q?[...subscriptionsData]:subscriptionsData.filter(i=>i.customerName.toLowerCase().includes(q)||String(i.customerId).toLowerCase().includes(q)||i.username.toLowerCase().includes(q)||String(i.zoneId).toLowerCase().includes(q)||i.mobile.toLowerCase().includes(q));
-            getEl('filteredCount').innerText=filteredSubscriptionsData.length;
-            getEl('totalResultsCount').innerText=subscriptionsData.length;
-            getEl('btnExport').disabled=subscriptionsData.length===0;
-            renderTable(filteredSubscriptionsData)
+
+        function logout() {
+            sessionStorage.removeItem('ftth_token');
+            sessionStorage.removeItem('ftth_username');
+            token = null;
+            subscriptionsData = [];
+            
+            document.getElementById('userInfoSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+            showToast('تم تسجيل الخروج', 'info');
         }
-        function renderTable(data){
-            const tb=getEl('tableBody');tb.innerHTML='';
-            if(!data.length){tb.innerHTML=`<tr><td colspan="9" class="p-8 text-center text-slate-400">لا توجد بيانات مطابقة للبحث أو أن القائمة فارغة.</td></tr>`;return}
-            data.forEach((item,idx)=>{
-                const tr=document.createElement('tr');tr.className="hover:bg-slate-50 transition border-b border-slate-100";
-                tr.innerHTML=`<td class="p-4 font-bold text-slate-400">${idx+1}</td><td class="p-4 font-bold text-slate-900">${esc(item.customerName)}</td><td class="p-4 font-mono text-slate-600">${esc(item.customerId)}</td><td class="p-4 font-mono text-brand-600 font-semibold">${esc(item.username)}</td><td class="p-4 font-mono text-indigo-600 font-semibold">${esc(item.zoneId)}</td><td class="p-4 font-mono text-emerald-700 font-bold" dir="ltr">${esc(item.mobile)}</td><td class="p-4 text-slate-500 font-mono" dir="ltr">${esc(item.startedAt)}</td><td class="p-4 text-slate-500 font-mono" dir="ltr">${esc(item.expires)}</td><td class="p-4"><span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200">${esc(item.commitmentPeriod)}</span></td>`;
-                tb.appendChild(tr)
-            })
+
+
+        // -------------------------------------------------------------
+        // 2. Fetching Subscriptions & Customer Mobiles (with Dynamic Status & Pagination)
+        // -------------------------------------------------------------
+        async function fetchSubscriptions() {
+            if (!token) {
+                showToast('الرجاء تسجيل الدخول أولاً', 'error');
+                return;
+            }
+
+            const selectedDateVal = document.getElementById('selectedDate').value;
+            const selectedStatus = document.getElementById('subscriptionStatus').value; // Expired or Active
+
+            if (!selectedDateVal) {
+                showToast('يرجى تحديد تاريخ الانتهاء', 'error');
+                return;
+            }
+
+            const btnFetch = document.getElementById('btnFetch');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressCount = document.getElementById('progressCount');
+            const progressStatus = document.getElementById('progressStatus');
+
+            btnFetch.disabled = true;
+            btnFetch.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري الجلب...</span>`;
+            
+            // Format dates properly for UTC offset
+            const selDateObj = new Date(selectedDateVal);
+            const prevDateObj = new Date(selDateObj);
+            prevDateObj.setDate(prevDateObj.getDate() - 1);
+            
+            const prevDateVal = prevDateObj.toISOString().split('T')[0];
+
+            const fromDate = `${prevDateVal}T21:00:00.000Z`;
+            const toDate = `${selectedDateVal}T20:59:59.999Z`;
+
+            let allItems = [];
+            let currentPage = 1;
+            const pageSize = 100;
+            let totalCount = 0;
+
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '0%';
+
+            try {
+                // Loop to fetch all pages if totalCount > 100
+                do {
+                    progressStatus.innerText = `جاري جلب قائمة الاشتراكات (الصفحة ${currentPage})...`;
+
+                    const queryParams = new URLSearchParams({
+                        'pageSize': pageSize.toString(),
+                        'pageNumber': currentPage.toString(),
+                        'sortCriteria.property': 'expires',
+                        'sortCriteria.direction': 'desc',
+                        'status': selectedStatus,
+                        'fromExpirationDate': fromDate,
+                        'toExpirationDate': toDate,
+                        'hierarchyLevel': '0'
+                    });
+
+                    const response = await fetch(`${API_BASE}/subscriptions?${queryParams.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json',
+                            'x-client-app': '53d57a7f-3f89-4e9d-873b-3d071bc6dd9f',
+                            'x-user-role': '0'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            logout();
+                            throw new Error('انتهت جلسة الدخول. يرجى إعادة تسجيل الدخول.');
+                        }
+                        let errorText = `فشل الجلب من السيرفر: ${response.status}`;
+                        try {
+                            const errData = await response.json();
+                            if (errData && (errData.message || errData.title)) {
+                                errorText += ` (${errData.message || errData.title})`;
+                            }
+                        } catch (e) {}
+                        throw new Error(errorText);
+                    }
+
+                    const result = await response.json();
+                    const pageItems = result.items || result.data || (Array.isArray(result) ? result : []);
+                    
+                    // Read total count on the first page
+                    if (currentPage === 1) {
+                        totalCount = result.totalCount !== undefined ? result.totalCount : (result.count !== undefined ? result.count : pageItems.length);
+                    }
+
+                    if (Array.isArray(pageItems) && pageItems.length > 0) {
+                        allItems = allItems.concat(pageItems);
+                    } else {
+                        break; // Stop if no items returned
+                    }
+
+                    currentPage++;
+
+                } while (allItems.length < totalCount && (currentPage - 1) * pageSize < totalCount);
+
+                if (allItems.length === 0) {
+                    subscriptionsData = [];
+                    renderTable([]);
+                    const statusText = selectedStatus === 'Expired' ? 'المنتهية' : 'القريبة من الانتهاء';
+                    showToast(`لا توجد اشتراكات ${statusText} في هذا التاريخ`, 'info');
+                    return;
+                }
+
+                showToast(`تم استلام قائمة بـ ${allItems.length} اشتراك. جاري استكمال تفاصيل الهواتف...`, 'info');
+
+                // Now loop through all items to fetch Customer Mobiles
+                progressStatus.innerText = 'جاري جلب أرقام الهواتف وقوة الإشارة وتفاصيل المشتركين...';
+                progressCount.innerText = `0 / ${allItems.length}`;
+
+                subscriptionsData = [];
+
+                for (let i = 0; i < allItems.length; i++) {
+                    const item = allItems[i];
+                    
+                    const customerId = item.customer ? item.customer.id : null;
+                    const customerName = item.customer ? item.customer.displayValue : 'غير معروف';
+                    const username = item.username || 'N/A';
+                    const zoneId = (item.zone && item.zone.id) ? item.zone.id : (item.zoneId || 'N/A');
+                    const startedAt = item.startedAt;
+                    const expires = item.expires;
+
+                    let mobileNumber = 'N/A';
+
+                    if (customerId) {
+                        try {
+                            const custResponse = await fetch(`${API_BASE}/customers/${customerId}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Accept': 'application/json',
+                                    'x-client-app': '53d57a7f-3f89-4e9d-873b-3d071bc6dd9f',
+                                    'x-user-role': '0'
+                                }
+                            });
+
+                            if (custResponse.ok) {
+                                const custData = await custResponse.json();
+                                if (custData.model && custData.model.primaryContact && custData.model.primaryContact.mobile) {
+                                    mobileNumber = custData.model.primaryContact.mobile;
+                                } else if (custData.primaryContact && custData.primaryContact.mobile) {
+                                    mobileNumber = custData.primaryContact.mobile;
+                                }
+                            }
+                        } catch (err) {
+                            console.warn(`تعذر جلب تفاصيل الزبون ${customerId}:`, err);
+                        }
+                    }
+
+                    // Calculate commitment duration
+                    const commitmentPeriod = calculateCommitmentDuration(startedAt, expires);
+
+                    // Fetch ONT signal info last (via username), after subscription + mobile info
+                    let rxPower = 'N/A';
+                    let signalStatusDisplay = 'N/A';
+                    let signalDescription = 'N/A';
+                    let signalQuality = null;
+
+                    if (username && username !== 'N/A') {
+                        try {
+                            const signalResponse = await fetch(`${API_BASE}/subscriptions/device/ont?username=${encodeURIComponent(username)}`, {
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Accept': 'application/json',
+                                    'x-client-app': '53d57a7f-3f89-4e9d-873b-3d071bc6dd9f',
+                                    'x-user-role': '0'
+                                }
+                            });
+
+                            if (signalResponse.ok) {
+                                const signalData = await signalResponse.json();
+                                const model = signalData.model || signalData;
+
+                                if (model) {
+                                    if (model.rxPower !== undefined && model.rxPower !== null) {
+                                        rxPower = model.rxPower;
+                                    }
+                                    if (model.status) {
+                                        signalDescription = model.status.description || model.status.title || 'N/A';
+                                        signalStatusDisplay = model.status.displayValue || 'N/A';
+                                    }
+                                    signalQuality = evaluateSignalQuality(rxPower);
+                                }
+                            }
+                        } catch (err) {
+                            console.warn(`تعذر جلب بيانات الإشارة للمستخدم ${username}:`, err);
+                        }
+                    }
+
+                    subscriptionsData.push({
+                        customerName,
+                        customerId: customerId || 'N/A',
+                        username,
+                        zoneId,
+                        mobile: mobileNumber,
+                        startedAt: formatDateEnglish(startedAt),
+                        expires: formatDateEnglish(expires),
+                        commitmentPeriod,
+                        rawStartedAt: startedAt,
+                        rawExpires: expires,
+                        status: selectedStatus,
+                        rxPower,
+                        signalStatusDisplay,
+                        signalDescription,
+                        signalQuality
+                    });
+
+                    // Update Progress
+                    const pct = Math.round(((i + 1) / allItems.length) * 100);
+                    progressBar.style.width = `${pct}%`;
+                    progressCount.innerText = `${i + 1} / ${allItems.length}`;
+                }
+
+                showToast(`تم جلب جميع الحسابات بنجاح (${subscriptionsData.length} سجل)`, 'success');
+                
+                // Update stats
+                document.getElementById('statLabelTotal').innerText = selectedStatus === 'Expired' ? 'إجمالي الاشتراكات المنتهية' : 'إجمالي الاشتراكات التي ستنتهي قريباً';
+                document.getElementById('statTotal').innerText = subscriptionsData.length;
+                document.getElementById('statMobiles').innerText = subscriptionsData.filter(d => d.mobile !== 'N/A').length;
+                document.getElementById('statDate').innerText = selectedDateVal;
+                document.getElementById('statsContainer').classList.remove('hidden');
+                document.getElementById('tableControls').classList.remove('hidden');
+
+                // Render Table
+                filterTable();
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                showToast(error.message, 'error');
+            } finally {
+                btnFetch.disabled = false;
+                btnFetch.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> <span>جلب البيانات</span>`;
+                setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                }, 2000);
+            }
         }
-        function esc(s){return typeof s==='string'?s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])):s}
-        function exportToExcel(){
-            if(!subscriptionsData.length){showToast('لا توجد بيانات للتصدير','error');return}
-            const st=getEl('subscriptionStatus').value,title=st==='Expired'?"الاشتراكات المنتهية":"سوف ينتهون قريباً";
-            const rows=subscriptionsData.map((item,i)=>({'ت':i+1,'اسم المشترك':item.customerName,'رقم المعرف (Customer ID)':item.customerId,'اسم المستخدم (Username)':item.username,'المنطقة (Zone ID)':item.zoneId,'رقم الهاتف':item.mobile,'تاريخ الاشتراك':item.startedAt,'تاريخ الانتهاء':item.expires,'مدة الالتزام':item.commitmentPeriod}));
-            const ws=XLSX.utils.json_to_sheet(rows);
-            ws['!views']=[{RTL:true}];
-            ws['!cols']=[{wch:6},{wch:30},{wch:22},{wch:20},{wch:15},{wch:18},{wch:22},{wch:22},{wch:18}];
-            const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,title);
-            XLSX.writeFile(wb,`FTTH_${st}_Subscriptions_${getEl('selectedDate').value||'report'}.xlsx`);
-            showToast('تم تصدير ملف Excel بنجاح','success')
+
+
+        // -------------------------------------------------------------
+        // 3. Helpers & Data Calculation
+        // -------------------------------------------------------------
+        
+        // Calculate Commitment Duration between StartedAt & Expires
+        function calculateCommitmentDuration(startIso, endIso) {
+            if (!startIso || !endIso) return 'غير محدد';
+
+            const start = new Date(startIso);
+            const end = new Date(endIso);
+
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) return 'غير محدد';
+
+            // Difference in days
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            // Estimate months (~30 days per month)
+            const months = Math.round(diffDays / 30);
+
+            if (months <= 1) {
+                return 'شهر واحد';
+            } else if (months === 2) {
+                return 'شهرين (2)';
+            } else if (months === 3) {
+                return '3 أشهر';
+            } else if (months > 3) {
+                return `${months} أشهر أو أكثر`;
+            } else {
+                return `${diffDays} يوم`;
+            }
         }
-        function showToast(m,type='info'){
-            const t=getEl('toast'),tM=getEl('toastMessage'),tI=getEl('toastIcon');
-            tM.innerText=m;
-            tI.className=type==='success'?'fa-solid fa-circle-check text-emerald-400 text-lg':type==='error'?'fa-solid fa-circle-xmark text-rose-400 text-lg':'fa-solid fa-circle-info text-brand-400 text-lg';
-            t.classList.remove('hidden','translate-y-2');t.classList.add('translate-y-0');
-            setTimeout(()=>{t.classList.add('translate-y-2');setTimeout(()=>t.classList.add('hidden'),300)},4000)
+
+        // Format dates strictly in English format
+        function formatDateEnglish(dateStr) {
+            if (!dateStr) return 'N/A';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            return d.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+
+        // -------------------------------------------------------------
+        // 4. UI Rendering & Table Filtering
+        // -------------------------------------------------------------
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!query) {
+                filteredSubscriptionsData = [...subscriptionsData];
+            } else {
+                filteredSubscriptionsData = subscriptionsData.filter(item => 
+                    item.customerName.toLowerCase().includes(query) ||
+                    String(item.customerId).toLowerCase().includes(query) ||
+                    item.username.toLowerCase().includes(query) ||
+                    String(item.zoneId).toLowerCase().includes(query) ||
+                    item.mobile.toLowerCase().includes(query)
+                );
+            }
+
+            document.getElementById('filteredCount').innerText = filteredSubscriptionsData.length;
+            document.getElementById('totalResultsCount').innerText = subscriptionsData.length;
+            document.getElementById('btnExport').disabled = subscriptionsData.length === 0;
+
+            renderTable(filteredSubscriptionsData);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="p-8 text-center text-slate-400">
+                            لا توجد بيانات مطابقة للبحث أو أن القائمة فارغة.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            data.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                
+                const signalBadge = buildSignalBadge(item.rxPower, item.signalQuality);
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-400">${index + 1}</td>
+                    <td class="p-4 font-bold text-slate-900">${escapeHtml(item.customerName)}</td>
+                    <td class="p-4 font-mono text-brand-600 font-semibold">${escapeHtml(item.username)}</td>
+                    <td class="p-4 font-mono text-indigo-600 font-semibold">${escapeHtml(item.zoneId)}</td>
+                    <td class="p-4 font-mono text-emerald-700 font-bold" dir="ltr">${escapeHtml(item.mobile)}</td>
+                    <td class="p-4 text-slate-500 font-mono" dir="ltr">${escapeHtml(item.startedAt)}</td>
+                    <td class="p-4 text-slate-500 font-mono" dir="ltr">${escapeHtml(item.expires)}</td>
+                    <td class="p-4">
+                        <span class="inline-block px-2.5 py-1 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200">
+                            ${escapeHtml(item.commitmentPeriod)}
+                        </span>
+                    </td>
+                    <td class="p-4">${signalBadge}</td>
+                    <td class="p-4 text-slate-600">${escapeHtml(item.signalStatusDisplay)}</td>
+                    <td class="p-4 text-slate-500">${escapeHtml(item.signalDescription)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(str) {
+            if (typeof str !== 'string') return str;
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+
+        // Evaluate signal quality based on rxPower value (dBm)
+        // -18 to -21  => جيدة (Good)
+        // -22 to -24  => تحتاج تنظيف رأس الكيبل (Needs cable head cleaning)
+        // -25 وأسوأ  => تحتاج صيانة فورية (Needs immediate maintenance)
+        function evaluateSignalQuality(rxPower) {
+            if (rxPower === null || rxPower === undefined || rxPower === 'N/A') return null;
+            const val = parseFloat(rxPower);
+            if (isNaN(val)) return null;
+
+            if (val >= -21) {
+                return { label: 'جيدة', level: 'good' };
+            } else if (val >= -24) {
+                return { label: 'تحتاج تنظيف رأس الكيبل', level: 'clean' };
+            } else {
+                return { label: 'تحتاج صيانة فورية', level: 'urgent' };
+            }
+        }
+
+        // Build the colored signal badge HTML for the table cell
+        function buildSignalBadge(rxPower, quality) {
+            if (rxPower === null || rxPower === undefined || rxPower === 'N/A') {
+                return `<span class="text-slate-400 text-xs">N/A</span>`;
+            }
+
+            const styles = {
+                good: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                clean: 'bg-amber-50 text-amber-700 border-amber-200',
+                urgent: 'bg-rose-50 text-rose-700 border-rose-200'
+            };
+
+            const level = quality ? quality.level : null;
+            const badgeClass = styles[level] || 'bg-slate-50 text-slate-600 border-slate-200';
+            const label = quality ? quality.label : '';
+
+            return `
+                <div class="flex flex-col gap-1 items-start">
+                    <span class="font-mono font-bold text-slate-800" dir="ltr">${escapeHtml(String(rxPower))} dBm</span>
+                    <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold border ${badgeClass}">${escapeHtml(label)}</span>
+                </div>
+            `;
+        }
+
+
+        // -------------------------------------------------------------
+        // 5. Excel Export Functionality (XLSX)
+        // -------------------------------------------------------------
+        function exportToExcel() {
+            if (subscriptionsData.length === 0) {
+                showToast('لا توجد بيانات للتصدير', 'error');
+                return;
+            }
+
+            const currentStatus = document.getElementById('subscriptionStatus').value;
+            const sheetTitle = currentStatus === 'Expired' ? "الاشتراكات المنتهية" : "سوف ينتهون قريباً";
+
+            // Map data to clean Arabic Excel Header structure
+            const excelRows = subscriptionsData.map((item, index) => ({
+                'ت': index + 1,
+                'اسم المشترك': item.customerName,
+                'رقم المعرف (Customer ID)': item.customerId,
+                'اسم المستخدم (Username)': item.username,
+                'المنطقة (Zone ID)': item.zoneId,
+                'رقم الهاتف': item.mobile,
+                'تاريخ الاشتراك': item.startedAt,
+                'تاريخ الانتهاء': item.expires,
+                'مدة الالتزام': item.commitmentPeriod,
+                'قوة الإشارة (dBm)': item.rxPower,
+                'حالة الإشارة': item.signalStatusDisplay,
+                'الوصف': item.signalDescription,
+                'تقييم الإشارة': item.signalQuality ? item.signalQuality.label : 'غير متوفر'
+            }));
+
+            // Create Worksheet
+            const worksheet = XLSX.utils.json_to_sheet(excelRows);
+
+            // Set Right-To-Left layout for worksheet
+            worksheet['!views'] = [{ RTL: true }];
+
+            // Define Column Widths
+            worksheet['!cols'] = [
+                { wch: 6 },   // #
+                { wch: 30 },  // Name
+                { wch: 22 },  // ID
+                { wch: 20 },  // Username
+                { wch: 15 },  // Zone ID
+                { wch: 18 },  // Mobile
+                { wch: 22 },  // StartedAt
+                { wch: 22 },  // Expires
+                { wch: 18 },  // Commitment
+                { wch: 16 },  // rxPower
+                { wch: 18 },  // Signal Status
+                { wch: 30 },  // Description
+                { wch: 24 }   // Signal Evaluation
+            ];
+
+            // Create Workbook
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetTitle);
+
+            // Generate Filename with selected status and date
+            const selectedDateVal = document.getElementById('selectedDate').value || 'report';
+            const statusPrefix = currentStatus === 'Expired' ? 'Expired' : 'ExpiringSoon';
+            const fileName = `FTTH_${statusPrefix}_Subscriptions_${selectedDateVal}.xlsx`;
+
+            // Download Excel file
+            XLSX.writeFile(workbook, fileName);
+
+            showToast('تم تصدير ملف Excel بنجاح', 'success');
+        }
+
+
+        // -------------------------------------------------------------
+        // 6. UI Toast Notifications
+        // -------------------------------------------------------------
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.innerText = message;
+
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400 text-lg';
+            } else if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-xmark text-rose-400 text-lg';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-info text-brand-400 text-lg';
+            }
+
+            toast.classList.remove('hidden', 'translate-y-2');
+            toast.classList.add('translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 4000);
         }
     </script>
 </body>
